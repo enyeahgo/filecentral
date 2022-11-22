@@ -1,19 +1,20 @@
 var storage = require('./storage');
 var multer = require('multer');
-const store = (staff) => {
-  multer.diskStorage({
+const store = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, `${storage}${staff}/`)
+      cb(null, storage)
     },
     filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9) + '-' + file.originalname;
-      cb(null, req.body.staff + '-' + uniqueSuffix)
+      cb(null, properName(file.originalname))
     }
-  })
-};
+  });
 
-const upload = (staff) => {
-  return multer({ storage: store(staff) });
-};
+const upload = multer({ storage: store });
+
+function properName(filename) {
+  let format = filename.split('.').pop();
+  filename = filename.split(`.${format}`)[0];
+  return `${format}-${Date.now()}-${filename.replace(/[^A-Za-z0-9]/g, '_')}.${format}`;
+}
 
 module.exports = upload;
