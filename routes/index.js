@@ -21,6 +21,7 @@ router.get('/', (req, res) => {
       <div class="card-body p-0">
         <ul class="list-group">
           <a href="/upload" class="list-group-item">Upload</a>
+          <a href="/view" class="list-group-item">View</a>
         </ul>
       </div>
     </div>
@@ -46,6 +47,7 @@ router.get('/upload', (req, res) => {
               <option value="CO">CO</option>
               <option value="EXO">EXO</option>
               <option value="FSgt">First Sgt</option>
+              <option value="Maint">Maintenance</option>
               <option value="S1">Personnel</option>
               <option value="S2">Intelligence</option>
               <option value="S3">Operations</option>
@@ -59,6 +61,21 @@ router.get('/upload', (req, res) => {
             </select>
             <small class="form-text text-muted">Please choose folder</small>
           </div>
+          <div class="form-group mb-3">
+          	<select class="form-control" name="subfolder" id="subfolder">
+              <option selected disabled>Choose Sub-Folder</option>
+              <option value="Daily">Daily</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Semi-Annual">Semi-Annual</option>
+              <option value="Annual">Annual</option>
+              <option value="Requests">Requests</option>
+              <option value="Messages">Messages</option>
+              <option value="Other">Other</option>
+            </select>
+            <small class="form-text text-muted">Please choose sub-folder</small>
+		      </div>
           <div class="form-group">
             <input type="file" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf" name="file" id="file" class="form-control" />
             <small class="form-text text-muted">Please select a file</small>
@@ -71,6 +88,7 @@ router.get('/upload', (req, res) => {
     <script>
       let file = document.getElementById('file');
       let staff = document.getElementById('staff');
+      let subfolder = document.getElementById('subfolder');
       let form = document.getElementById('form');
       let submitBtn = document.getElementById('submitBtn');
       
@@ -78,7 +96,11 @@ router.get('/upload', (req, res) => {
         if(staff.selectedIndex == 0) {
           toast('Please select folder', 'error');
         } else {
-          form.submit();
+          if(subfolder.selectedIndex == 0) {
+            toast('Please select sub-folder', 'error');
+          } else {
+            form.submit();
+          }
         }
       }
       
@@ -120,6 +142,7 @@ router.get('/upload_', (req, res) => {
               <option value="CO">CO</option>
               <option value="EXO">EXO</option>
               <option value="FSgt">First Sgt</option>
+              <option value="Maint">Maintenance</option>
               <option value="S1">Personnel</option>
               <option value="S2">Intelligence</option>
               <option value="S3">Operations</option>
@@ -133,6 +156,21 @@ router.get('/upload_', (req, res) => {
             </select>
             <small class="form-text text-muted">Please choose folder</small>
           </div>
+          <div class="form-group mb-3">
+          	<select class="form-control" name="subfolder" id="subfolder">
+              <option selected disabled>Choose Sub-Folder</option>
+              <option value="Daily">Daily</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Semi-Annual">Semi-Annual</option>
+              <option value="Annual">Annual</option>
+              <option value="Requests">Requests</option>
+              <option value="Messages">Messages</option>
+              <option value="Other">Other</option>
+            </select>
+            <small class="form-text text-muted">Please choose sub-folder</small>
+		      </div>
           <div class="form-group">
             <input type="file" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf" name="file" id="file" class="form-control" />
             <small class="form-text text-muted">Please select a file</small>
@@ -148,6 +186,7 @@ router.get('/upload_', (req, res) => {
       });
       let file = document.getElementById('file');
       let staff = document.getElementById('staff');
+      let subfolder = document.getElementById('subfolder');
       let form = document.getElementById('form');
       let submitBtn = document.getElementById('submitBtn');
       
@@ -155,7 +194,11 @@ router.get('/upload_', (req, res) => {
         if(staff.selectedIndex == 0) {
           toast('Please select folder', 'error');
         } else {
-          form.submit();
+          if(subfolder.selectedIndex == 0) {
+            toast('Please select sub-folder', 'error');
+          } else {
+            form.submit();
+          }
         }
       }
       
@@ -189,6 +232,97 @@ router.post('/upload', upload.single('file'), (req, res) => {
       res.redirect('/upload_');
     }
   });
+});
+
+router.get('/view', (req, res) => {
+  fs.readdir(storage, (err, files) => {
+    if(err) {
+      res.send(err)
+    } else {
+      res.send(files)
+    }
+  });
+  /*res.send(`
+    ${topWithBack('View')}
+    <div class="container-fluid">
+      <div class="row d-flex justify-content-between">
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">CO</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">EXO</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">FSgt</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">S1</p>
+        </div>
+      </div>
+      <div class="row d-flex justify-content-between">
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">S2</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">S3</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">S4</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">S6</p>
+        </div>
+      </div>
+      <div class="row d-flex justify-content-between">
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">S7</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">S8</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">Finance</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">ATR</p>
+        </div>
+      </div>
+      <div class="row d-flex justify-content-between">
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">Maint</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">1Sct Pltn</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">2Sct Pltn</p>
+        </div>
+        <div class="col-3 text-center">
+          <img src="/folder.png" width="50px" />
+          <p class="text-center">Other</p>
+        </div>
+      </div>
+    </div>
+    ${footer}
+    ${bottom}
+    ${swals}
+    ${closing}
+  `);*/
 });
 
 module.exports = router;

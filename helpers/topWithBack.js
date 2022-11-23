@@ -17,7 +17,7 @@ return `<!DOCTYPE html>
   <!-- Navigation Bar -->
   <nav class="navbar navbar-dark bg-primary position-relative d-flex justify-content-between text-light">
     <div style="margin-left: 15px; font-size: 20px;">
-      <ion-icon onclick="javascript: history.back();" name="chevron-back-outline"></ion-icon>
+      <ion-icon onclick="javascript: location.href = '/';" name="chevron-back-outline"></ion-icon>
     </div>
     <a class="navbar-brand headerTitle" href="/">
       ${title.toUpperCase()}
