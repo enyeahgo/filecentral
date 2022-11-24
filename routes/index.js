@@ -49,7 +49,7 @@ router.get('/', (req, res) => {
 router.get('/upload/:folder', (req, res) => {
   let uploadTo = storage+req.params.folder.split('_').join('/');
   res.send(`
-    ${topWithBack('Upload')}
+    ${topWithBackLink('Upload', '/open/${req.params.folder}')}
     <div class="card shadow-sm">
       <div class="card-header bg-success text-light d-flex justify-content-between">
         <span>${req.params.folder.split('_').join('/')}</span>
@@ -80,7 +80,7 @@ router.get('/upload/:folder', (req, res) => {
       
       file.addEventListener('change', e => {
         let f = e.target.files[0];
-        if(f.type.match("application/msword") ||  f.type.match("application/vnd.msexcel") || f.type.match("application/vnd.mspowerpoint") || f.type.match("text/plain") || f.type.match("application/pdf")) {
+        /*if(f.type.match("application/ms-word") ||  f.type.match("application/vnd.ms-excel") || f.type.match("application/vnd.ms-powerpoint") || f.type.match("text/plain") || f.type.match("application/pdf")) {*/
           if(f.size == 0) {
             toast('File is corrupted!', 'error');
             file.value = '';
@@ -88,11 +88,11 @@ router.get('/upload/:folder', (req, res) => {
           } else {
             submitBtn.disabled = false;
           }
-        } else {
+        /*} else {
           toast('Only PDF, WORD, EXCEL, POWERPOINT and TEXT files are allowed!', 'error');
           file.value = '';
           submitBtn.disabled = true;
-        }
+        } */
       })
     </script>
     ${swals}
