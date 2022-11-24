@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
+var fss = require('fs-sync');
 var upload = require('../upload');
 var storage = require('../storage');
 
 // Helpers
 var top = require('../helpers/top');
 var topWithBack = require('../helpers/topWithBack');
+var topWithBackLink = require('../helpers/topWithBackLink');
 var footer = require('../helpers/footer');
 var bottom = require('../helpers/bottom');
 var clientSocket = require('../helpers/clientSocket');
@@ -15,20 +17,33 @@ var closing = require('../helpers/closing');
 var move = require('../helpers/move');
 
 router.get('/', (req, res) => {
-  res.send(`
-    ${top('File Central')}
-    <div class="card">
-      <div class="card-body p-0">
-        <ul class="list-group">
-          <a href="/upload" class="list-group-item">Upload</a>
-          <a href="/view" class="list-group-item">View</a>
-        </ul>
-      </div>
-    </div>
-    ${footer}
-    ${bottom}
-    ${closing}
-  `);
+  fs.readdir(storage, (err, files) => {
+    if(err) {
+      res.send(err)
+    } else {
+      let folders = '';
+      files.map(file => {
+        folders += `
+          <div class="col-3 text-center" onclick="location.href = '/open/${file}';">
+            <img src="/folder.png" width="50px" />
+            <p class="text-center">${file}</p>
+          </div>
+        `;
+      });
+      res.send(`
+        ${top('File Central')}
+        <div class="container-fluid">
+          <div class="row d-flex justify-content-center">
+            ${folders}
+          </div>
+        </div>
+        ${bottom}
+        ${footer}
+        ${swals}
+        ${closing}
+      `);
+    }
+  });
 });
 
 router.get('/upload', (req, res) => {
@@ -234,95 +249,88 @@ router.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
-router.get('/view', (req, res) => {
-  fs.readdir(storage, (err, files) => {
+router.get('/open/:staff', (req, res) => {
+  let openWhatFolder = '';
+  let folderSystem = req.params.staff.split('_');
+  folderSystem.map(dir => {
+    openWhatFolder += `${dir}/`;
+  });
+  fs.readdir(`${storage}${openWhatFolder}`, (err, files) => {
     if(err) {
       res.send(err)
     } else {
-      res.send(files)
+      let content = '';
+			let icon = '/folder.png';
+			let canUpload = false;
+			let header = '';
+			files.map(file => {
+				if(fs.lstatSync(`${storage}${openWhatFolder}${file}`).isFile()) {
+					canUpload = true;
+					icon = '/file.png'
+				}
+				content += `
+					<li class="list-group-item" onclick="location.href = '/open/${req.params.staff}_${file}';">
+						<img src="${icon}" width="20px" />&nbsp;&nbsp;<span>${file}</span>
+					</li>
+				`;
+			});
+    	if(canUpload || folderSystem.length >= 4) {
+				header += `
+					<div class="card-header bg-success text-light d-flex justify-content-between">
+						<span>${req.params.staff.split('_').pop()}</span>
+						<button class="btn btn-sm btn-primary headerBtn" onclick="location.href = '/upload/${req.params.staff}';">Upload</button>
+					</div>
+				`;
+    	} else {
+    		header += `
+					<div class="card-header bg-success text-light d-flex justify-content-between">
+						<span>${req.params.staff.split('_').pop()}</span>
+					</div>
+				`;
+    	}
+      res.send(`
+        ${topWithBackLink(openWhatFolder, 'javascript: history.back();')}
+        <div class="card shadow-sm">
+        	${header}
+        	<div class="card-body p-0">
+        		<ul class="list-group">
+        			${content}
+        		</ul>
+        	</div>
+        </div>
+        ${bottom}
+        ${footer}
+        ${swals}
+        ${closing}
+      `);
     }
   });
-  /*res.send(`
-    ${topWithBack('View')}
-    <div class="container-fluid">
-      <div class="row d-flex justify-content-between">
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">CO</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">EXO</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">FSgt</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">S1</p>
-        </div>
-      </div>
-      <div class="row d-flex justify-content-between">
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">S2</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">S3</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">S4</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">S6</p>
-        </div>
-      </div>
-      <div class="row d-flex justify-content-between">
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">S7</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">S8</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">Finance</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">ATR</p>
-        </div>
-      </div>
-      <div class="row d-flex justify-content-between">
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">Maint</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">1Sct Pltn</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">2Sct Pltn</p>
-        </div>
-        <div class="col-3 text-center">
-          <img src="/folder.png" width="50px" />
-          <p class="text-center">Other</p>
-        </div>
-      </div>
-    </div>
-    ${footer}
-    ${bottom}
-    ${swals}
-    ${closing}
-  `);*/
 });
+
+function canUpload(path) {
+	let cu = false;
+	fs.readdir(path, (err, files) => {
+		if(err) {
+			return cu;
+		} else {
+			files.map(file => {
+				if(fss.isFile(`${path}${file}`)) {
+					cu = true;
+				}
+			});
+			return cu;
+		}
+	});
+}
+
+function getIcon(path) {
+	var icon = '/file.png';
+	fs.stat(path, (err, stats) => {
+		if(stats.isDirectory()) {
+			icon = '/folder.png';
+		}
+		return icon;
+	});
+}
 
 module.exports = router;

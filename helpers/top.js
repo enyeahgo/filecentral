@@ -24,7 +24,7 @@ return `<!DOCTYPE html>
 
   <div class="container py-3">
     <div class="row d-flex justify-content-center mb-3">
-      <div class="col-sm-6">`;
+      <div class="col-sm-8">`;
 };
 
 module.exports = top;
