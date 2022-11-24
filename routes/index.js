@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
       let folders = '';
       files.map(file => {
         folders += `
-          <div class="col-3 text-center" onclick="location.href = '/open/${file}';">
+          <div class="col-3 text-center" ondblclick="location.href = '/open/${file}';">
             <img src="/folder.png" width="50px" />
             <p class="text-center">${file}</p>
           </div>
@@ -46,51 +46,19 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/upload', (req, res) => {
+router.get('/upload/:folder', (req, res) => {
+  let uploadTo = storage+req.params.folder.split('_').join('/');
   res.send(`
     ${topWithBack('Upload')}
     <div class="card shadow-sm">
       <div class="card-header bg-success text-light d-flex justify-content-between">
-        <span>Upload File</span>
+        <span>${req.params.folder.split('_').join('/')}</span>
         <button id="submitBtn" class="btn btn-primary btn-sm headerBtn" onclick="submitForm()" disabled>Submit</button>
       </div>
       <div class="card-body">
         <form id="form" method="post" action="/upload" enctype="multipart/form-data">
-          <div class="form-group mb-3">
-            <select class="form-control" name="staff" id="staff">
-              <option selected disabled>Choose Folder</option>
-              <option value="CO">CO</option>
-              <option value="EXO">EXO</option>
-              <option value="FSgt">First Sgt</option>
-              <option value="Maint">Maintenance</option>
-              <option value="S1">Personnel</option>
-              <option value="S2">Intelligence</option>
-              <option value="S3">Operations</option>
-              <option value="S4">Logistics</option>
-              <option value="S6">Signal</option>
-              <option value="S7">CMO</option>
-              <option value="S8">Training</option>
-              <option value="Finance">Finance</option>
-              <option value="ATR">ATR</option>
-              <option value="Other">Other</option>
-            </select>
-            <small class="form-text text-muted">Please choose folder</small>
-          </div>
-          <div class="form-group mb-3">
-          	<select class="form-control" name="subfolder" id="subfolder">
-              <option selected disabled>Choose Sub-Folder</option>
-              <option value="Daily">Daily</option>
-              <option value="Weekly">Weekly</option>
-              <option value="Monthly">Monthly</option>
-              <option value="Quarterly">Quarterly</option>
-              <option value="Semi-Annual">Semi-Annual</option>
-              <option value="Annual">Annual</option>
-              <option value="Requests">Requests</option>
-              <option value="Messages">Messages</option>
-              <option value="Other">Other</option>
-            </select>
-            <small class="form-text text-muted">Please choose sub-folder</small>
-		      </div>
+          <input type="hidden" name="folder" id="folder" value="${uploadTo}" />
+          <input type="hidden" name="goto" id="goto" value="/open/${req.params.folder}" />
           <div class="form-group">
             <input type="file" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf" name="file" id="file" class="form-control" />
             <small class="form-text text-muted">Please select a file</small>
@@ -102,119 +70,12 @@ router.get('/upload', (req, res) => {
     ${bottom}
     <script>
       let file = document.getElementById('file');
-      let staff = document.getElementById('staff');
-      let subfolder = document.getElementById('subfolder');
+      let folder = document.getElementById('folder');
       let form = document.getElementById('form');
       let submitBtn = document.getElementById('submitBtn');
       
       function submitForm() {
-        if(staff.selectedIndex == 0) {
-          toast('Please select folder', 'error');
-        } else {
-          if(subfolder.selectedIndex == 0) {
-            toast('Please select sub-folder', 'error');
-          } else {
-            form.submit();
-          }
-        }
-      }
-      
-      file.addEventListener('change', e => {
-        let f = e.target.files[0];
-        if(f.type.match("application/msword") ||  f.type.match("application/vnd.msexcel") || f.type.match("application/vnd.mspowerpoint") || f.type.match("text/plain") || f.type.match("application/pdf")) {
-          if(f.size == 0) {
-            toast('File is corrupted!', 'error');
-            file.value = '';
-            submitBtn.disabled = true;
-          } else {
-            submitBtn.disabled = false;
-          }
-        } else {
-          toast('Only PDF, WORD, EXCEL, POWERPOINT and TEXT files are allowed!', 'error');
-          file.value = '';
-          submitBtn.disabled = true;
-        }
-      })
-    </script>
-    ${swals}
-    ${closing}
-  `);
-})
-
-router.get('/upload_', (req, res) => {
-  res.send(`
-    ${topWithBack('Upload')}
-    <div class="card shadow-sm">
-      <div class="card-header bg-success text-light d-flex justify-content-between">
-        <span>Upload File</span>
-        <button id="submitBtn" class="btn btn-primary btn-sm headerBtn" onclick="submitForm()" disabled>Submit</button>
-      </div>
-      <div class="card-body">
-        <form id="form" method="post" action="/upload" enctype="multipart/form-data">
-          <div class="form-group mb-3">
-            <select class="form-control" name="staff" id="staff">
-              <option selected disabled>Choose Folder</option>
-              <option value="CO">CO</option>
-              <option value="EXO">EXO</option>
-              <option value="FSgt">First Sgt</option>
-              <option value="Maint">Maintenance</option>
-              <option value="S1">Personnel</option>
-              <option value="S2">Intelligence</option>
-              <option value="S3">Operations</option>
-              <option value="S4">Logistics</option>
-              <option value="S6">Signal</option>
-              <option value="S7">CMO</option>
-              <option value="S8">Training</option>
-              <option value="Finance">Finance</option>
-              <option value="ATR">ATR</option>
-              <option value="Other">Other</option>
-            </select>
-            <small class="form-text text-muted">Please choose folder</small>
-          </div>
-          <div class="form-group mb-3">
-          	<select class="form-control" name="subfolder" id="subfolder">
-              <option selected disabled>Choose Sub-Folder</option>
-              <option value="Daily">Daily</option>
-              <option value="Weekly">Weekly</option>
-              <option value="Monthly">Monthly</option>
-              <option value="Quarterly">Quarterly</option>
-              <option value="Semi-Annual">Semi-Annual</option>
-              <option value="Annual">Annual</option>
-              <option value="Requests">Requests</option>
-              <option value="Messages">Messages</option>
-              <option value="Other">Other</option>
-            </select>
-            <small class="form-text text-muted">Please choose sub-folder</small>
-		      </div>
-          <div class="form-group">
-            <input type="file" accept="application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, text/plain, application/pdf" name="file" id="file" class="form-control" />
-            <small class="form-text text-muted">Please select a file</small>
-          </div>
-        </form>
-      </div>
-    </div>
-    ${footer}
-    ${bottom}
-    <script>
-      window.addEventListener('load', () => {
-        toast('Upload successful!', 'success');
-      });
-      let file = document.getElementById('file');
-      let staff = document.getElementById('staff');
-      let subfolder = document.getElementById('subfolder');
-      let form = document.getElementById('form');
-      let submitBtn = document.getElementById('submitBtn');
-      
-      function submitForm() {
-        if(staff.selectedIndex == 0) {
-          toast('Please select folder', 'error');
-        } else {
-          if(subfolder.selectedIndex == 0) {
-            toast('Please select sub-folder', 'error');
-          } else {
-            form.submit();
-          }
-        }
+        form.submit();
       }
       
       file.addEventListener('change', e => {
@@ -240,11 +101,11 @@ router.get('/upload_', (req, res) => {
 })
 
 router.post('/upload', upload.single('file'), (req, res) => {
-  move(req.file.path, `${storage}${req.body.staff}/${req.file.filename}`, err => {
+  move(req.file.path, `${req.body.folder}/${req.file.filename}`, err => {
     if(err) {
       res.send(err);
     } else {
-      res.redirect('/upload_');
+      res.redirect(req.body.goto);
     }
   });
 });
@@ -262,34 +123,44 @@ router.get('/open/:staff', (req, res) => {
       let content = '';
 			let icon = '/folder.png';
 			let canUpload = false;
+			let isFile = false;
 			let header = '';
 			files.map(file => {
 				if(fs.lstatSync(`${storage}${openWhatFolder}${file}`).isFile()) {
 					canUpload = true;
+					isFile = true;
 					icon = '/file.png'
 				}
-				content += `
-					<li class="list-group-item" onclick="location.href = '/open/${req.params.staff}_${file}';">
-						<img src="${icon}" width="20px" />&nbsp;&nbsp;<span>${file}</span>
-					</li>
-				`;
+				if(isFile) {
+  				content += `
+  					<li class="list-group-item">
+  						<span onclick="location.href = '/storage/${openWhatFolder}${file}';">${file}</span>&nbsp;&nbsp;<img src="/bin.png" width="20px" onclick="deleteFile('${openWhatFolder}${file}', '${req.params.staff}')" />
+  					</li>
+  				`;
+				} else {
+  				content += `
+  					<li class="list-group-item" ondblclick="location.href = '/open/${req.params.staff}_${file}';">
+  						<img src="${icon}" width="20px" />&nbsp;&nbsp;<span>${file}</span>
+  					</li>
+  				`;
+				}
 			});
     	if(canUpload || folderSystem.length >= 4) {
 				header += `
 					<div class="card-header bg-success text-light d-flex justify-content-between">
-						<span>${req.params.staff.split('_').pop()}</span>
+						<span>${openWhatFolder}</span>
 						<button class="btn btn-sm btn-primary headerBtn" onclick="location.href = '/upload/${req.params.staff}';">Upload</button>
 					</div>
 				`;
     	} else {
     		header += `
 					<div class="card-header bg-success text-light d-flex justify-content-between">
-						<span>${req.params.staff.split('_').pop()}</span>
+						<span>${openWhatFolder}</span>
 					</div>
 				`;
     	}
       res.send(`
-        ${topWithBackLink(openWhatFolder, 'javascript: history.back();')}
+        ${topWithBackLink(folderSystem[0], 'javascript: history.back();')}
         <div class="card shadow-sm">
         	${header}
         	<div class="card-body p-0">
@@ -298,14 +169,43 @@ router.get('/open/:staff', (req, res) => {
         		</ul>
         	</div>
         </div>
-        ${bottom}
         ${footer}
+        ${bottom}
+        <script type="text/javascript">
+          function deleteFile(file, goto) {
+            Swal.fire({
+              title: 'Are you sure you want to delete this file?',
+              text: file,
+              showConfirmButton: true,
+              confirmButtonText: 'Yes',
+              showCancelButton: true,
+              cancelButtonText: 'Back',
+              allowOutsideClick: false
+            }).then(result => {
+              if(result.isConfirmed) {
+                axios.post('/delete', {
+                  file: file,
+                  goto: goto
+                }).then(response => {
+                  location.href = response.data;
+                }).catch(err => {
+                  toast(err, 'error');
+                });
+              }
+            });
+          }
+        </script>
         ${swals}
         ${closing}
       `);
     }
   });
 });
+
+router.post('/delete', (req, res) => {
+  fss.remove(`${storage}${req.body.file}`);
+  res.status(200).send(`/open/${req.body.goto}`);
+})
 
 function canUpload(path) {
 	let cu = false;

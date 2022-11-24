@@ -14,7 +14,7 @@ const upload = multer({ storage: store });
 function properName(filename) {
   let format = filename.split('.').pop();
   filename = filename.split(`.${format}`)[0];
-  return `${format}-${Date.now()}-${filename.replace(/[^A-Za-z0-9]/g, '_')}.${format}`;
+  return `${filename.replace(/[^A-Za-z0-9]/g, '_').toUpperCase()}.${format}`;
 }
 
 module.exports = upload;
