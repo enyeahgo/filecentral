@@ -134,13 +134,13 @@ router.get('/open/:staff', (req, res) => {
 				if(isFile) {
   				content += `
   					<li class="list-group-item">
-  						<span onclick="location.href = '/storage/${openWhatFolder}${file}';">${file}</span>&nbsp;&nbsp;<img src="/bin.png" width="20px" onclick="deleteFile('${openWhatFolder}${file}', '${req.params.staff}')" />
+  						<span class="unselectable" onclick="location.href = '/storage/${openWhatFolder}${file}';">${file}</span>&nbsp;&nbsp;<img src="/bin.png" width="20px" onclick="deleteFile('${openWhatFolder}${file}', '${req.params.staff}')" />
   					</li>
   				`;
 				} else {
   				content += `
   					<li class="list-group-item" ondblclick="location.href = '/open/${req.params.staff}_${file}';">
-  						<img src="${icon}" width="20px" />&nbsp;&nbsp;<span>${file}</span>
+  						<img src="${icon}" width="20px" /><span class="unselectable">&nbsp;&nbsp;${file}</span>
   					</li>
   				`;
 				}
